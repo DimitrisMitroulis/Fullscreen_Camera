@@ -1,5 +1,17 @@
 package com.example.fullscreencamera;
 
+import android.content.pm.PackageManager;
+import android.graphics.Matrix;
+import android.hardware.Camera;
+import android.os.Bundle;
+import android.util.Log;
+import android.util.Rational;
+import android.util.Size;
+import android.view.Surface;
+import android.view.TextureView;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.Preview;
@@ -7,27 +19,19 @@ import androidx.camera.core.PreviewConfig;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import android.content.pm.PackageManager;
-
-import android.graphics.Matrix;
-import android.os.Bundle;
-import android.util.Log;
-import android.util.Rational;
-import android.util.Size;
-import android.view.ContentInfo;
-import android.view.Surface;
-import android.view.TextureView;
-import android.view.ViewGroup;
-
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity  {
     private static final String TAG = "";
     //created by Dimitris mi
     //heavily inspired by https://www.youtube.com/watch?v=8ZD6_SDsKWI&ab_channel=NextGEN
 
     private final int REQUEST_CODE_PERMISSIONS = 101;
-    private final String[] REQUIRED_PERMISSIONS = new String[]{"android.permission.CAMERA", "android.permission.WRITE_EXTERNAL_STORAGE"};
+    private final String[] REQUIRED_PERMISSIONS = new String[]{"android.permission.CAMERA"};
 
     TextureView textureView;
+    Camera camera;
+    FrameLayout frameLayout;
+    ShowCamera showCamera;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,16 +40,27 @@ public class MainActivity extends AppCompatActivity {
 
         getSupportActionBar().hide();
 
-        textureView = (TextureView) findViewById(R.id.view_finder);
+        frameLayout = (FrameLayout) findViewById(R.id.frameLayout);
+
+
+
 
         if (allPermissionGranted()) {
-            startCamera();
-
+            initiateCamera();
         } else
+            Log.d(TAG, "onCreate: ");
             ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS);
 
     }
 
+
+    private void initiateCamera(){
+        camera = Camera.open();
+        showCamera = new ShowCamera(this,camera);
+        frameLayout.addView(showCamera);
+
+
+    }
 
 
     private void startCamera() {
@@ -117,4 +132,6 @@ public class MainActivity extends AppCompatActivity {
         }
         return true;
     }
+
+
 }
